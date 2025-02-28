@@ -2,6 +2,7 @@ import pandas as pd
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
 from datetime import datetime
+from pandas import ExcelWriter
 import os
 
 # Definir colores para los estados
@@ -19,13 +20,17 @@ def procesar_excel(ruta_archivo):
 
     # Leer archivo de Excel
     try:
-        df = pd.read_excel(ruta_archivo, engine=engine)
+        # Usar header=1 para leer los encabezados de la segunda fila
+        df = pd.read_excel(ruta_archivo, engine=engine, header=1)
     except Exception as e:
         print(f"Error al leer el archivo: {e}")
         return
     
+    # Verificar las columnas disponibles
+    print("Columnas en el archivo:", df.columns.tolist())
+    
     # Filtrar las columnas necesarias
-    df = df[['ID', 'Nombre', 'Apellido', 'Tiempo']]
+    df = df[['ID de Evento', 'Nombre', 'Apellido', 'Tiempo']]
     
     # Convertir la columna 'Tiempo' a formato datetime
     df['Tiempo'] = pd.to_datetime(df['Tiempo'])
@@ -38,7 +43,7 @@ def procesar_excel(ruta_archivo):
     output_df = pd.DataFrame(columns=['ID', 'Nombre', 'Apellido', 'Fecha', 'Hora de Entrada', 'Hora de Almuerzo Salida', 'Hora de Almuerzo Entrada', 'Hora de Salida'])
     
     for fecha, grupo_fecha in df.groupby('Fecha'):
-        for id_persona, grupo_persona in grupo_fecha.groupby('ID'):
+        for id_persona, grupo_persona in grupo_fecha.groupby('ID de Evento'):
             nombre = grupo_persona.iloc[0]['Nombre']
             apellido = grupo_persona.iloc[0]['Apellido']
             
@@ -47,7 +52,7 @@ def procesar_excel(ruta_archivo):
             for _, row in grupo_persona.iterrows():
                 hora = row['Hora']
                 
-                if datetime.strptime('07:00:00', '%H:%M:%S').time() <= hora <= datetime.strptime('08:00:00', '%H:%M:%S').time():
+                if datetime.strptime('06:00:00', '%H:%M:%S').time() <= hora <= datetime.strptime('08:00:00', '%H:%M:%S').time():
                     entrada = hora
                 elif datetime.strptime('12:00:00', '%H:%M:%S').time() <= hora <= datetime.strptime('14:59:00', '%H:%M:%S').time():
                     almuerzo_salida = hora
@@ -87,5 +92,7 @@ def procesar_excel(ruta_archivo):
                 pass  # Prevenir errores si hay valores vacíos
 
 # Ruta del archivo de entrada
-ruta_archivo = './excel/xd.xls'
+ruta_archivo = './excel/xd.xlsx'
+
+# Llamar a la función correctamente
 procesar_excel(ruta_archivo)
