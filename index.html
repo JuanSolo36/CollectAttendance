@@ -1,0 +1,171 @@
+<body class="flex flex-col items-center bg-gray-100">
+  <div class="w-full bg-red-500 py-4 mb-5 flex items-center justify-center px-6">
+    <img src="/static/logo2.png" alt="Logo" class="h-20 mr-2">
+    <h1 class="text-white text-4xl font-bold">Collect Certificate</h1>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </div>
+  <h1 class="text-2xl font-bold mb-4">Generador de Diplomas</h1>
+
+  <div class="mb-6">
+    <label class="block mb-2">Agregar persona:</label>
+    <input type="text" id="nuevaPersona" placeholder="Nombre" class="border p-2 rounded">
+    <button id="agregarPersona" class="bg-red-500 text-white px-4 py-2 rounded ml-2">Agregar</button>
+  </div>
+
+  <!-- Nuevo: Selección de Mes -->
+  <div class="mb-6">
+    <label class="block mb-2">Seleccionar Mes:</label>
+    <select id="mesSeleccionado" class="border p-2 rounded">
+      <option value="Enero">Enero</option>
+      <option value="Febrero">Febrero</option>
+      <option value="Marzo">Marzo</option>
+      <option value="Abril">Abril</option>
+      <option value="Mayo">Mayo</option>
+      <option value="Junio">Junio</option>
+      <option value="Julio">Julio</option>
+      <option value="Agosto">Agosto</option>
+      <option value="Septiembre">Septiembre</option>
+      <option value="Octubre">Octubre</option>
+      <option value="Noviembre">Noviembre</option>
+      <option value="Diciembre">Diciembre</option>
+    </select>
+  </div>
+
+  <!-- Nuevo: Selección de Fecha -->
+  <div class="mb-6">
+    <label class="block mb-2">Seleccionar Fecha:</label>
+    <input type="date" id="fechaSeleccionada" class="border p-2 rounded">
+  </div>
+
+  <table class="w-full max-w-2xl bg-white shadow-lg rounded-lg overflow-hidden">
+    <thead class="bg-red-400">
+      <tr>
+        <th class="p-2">Nombre</th>
+        <th class="p-2">Estrellas</th>
+        <th class="p-2">Seleccionar</th>
+        <th class="p-2">Eliminar</th>
+      </tr>
+    </thead>
+    <tbody id="listaPersonas"></tbody>
+  </table>
+
+  <button id="generar" class="mt-6 bg-red-500 text-white px-4 py-2 rounded">Generar Diplomas</button>
+
+  <script>
+    const listaPersonas = document.getElementById("listaPersonas");
+    const nuevaPersonaInput = document.getElementById("nuevaPersona");
+    const agregarPersonaBtn = document.getElementById("agregarPersona");
+    const generarBtn = document.getElementById("generar");
+    const mesSeleccionado = document.getElementById("mesSeleccionado");
+    const fechaSeleccionada = document.getElementById("fechaSeleccionada");
+
+    let personas = JSON.parse(localStorage.getItem("personas")) || [];
+
+    function guardarDatos() {
+      localStorage.setItem("personas", JSON.stringify(personas));
+    }
+
+    agregarPersonaBtn.addEventListener("click", () => {
+      const nombre = nuevaPersonaInput.value.trim();
+      if (nombre) {
+        personas.push({ nombre, estrellas: 0, seleccionada: false });
+        nuevaPersonaInput.value = "";
+        guardarDatos();
+        actualizarTabla();
+      }
+    });
+
+    function actualizarTabla() {
+      listaPersonas.innerHTML = "";
+      personas.forEach((persona, index) => {
+        const row = document.createElement("tr");
+        row.className = "border-b";
+
+        const nombreCell = document.createElement("td");
+        nombreCell.className = "p-2";
+        nombreCell.textContent = persona.nombre;
+        row.appendChild(nombreCell);
+
+        const estrellasCell = document.createElement("td");
+        estrellasCell.className = "p-2";
+        const estrellasInput = document.createElement("input");
+        estrellasInput.type = "number";
+        estrellasInput.min = 0;
+        estrellasInput.max = 3;
+        estrellasInput.value = persona.estrellas;
+        estrellasInput.className = "border p-1 rounded w-16";
+        estrellasInput.addEventListener("change", (e) => {
+          personas[index].estrellas = parseInt(e.target.value);
+          guardarDatos();
+        });
+        estrellasCell.appendChild(estrellasInput);
+        row.appendChild(estrellasCell);
+
+        const seleccionCell = document.createElement("td");
+        seleccionCell.className = "p-2";
+        const seleccionarBtn = document.createElement("button");
+        seleccionarBtn.className = `px-3 py-1 rounded text-white ${persona.seleccionada ? "bg-red-600" : "bg-red-300"}`;
+        seleccionarBtn.textContent = "Seleccionar";
+        seleccionarBtn.addEventListener("click", () => {
+          personas[index].seleccionada = !personas[index].seleccionada;
+          guardarDatos();
+          actualizarTabla();
+        });
+        seleccionCell.appendChild(seleccionarBtn);
+        row.appendChild(seleccionCell);
+
+        const eliminarCell = document.createElement("td");
+        eliminarCell.className = "p-2";
+        const eliminarBtn = document.createElement("button");
+        eliminarBtn.className = "bg-red-600 text-white px-3 py-1 rounded";
+        eliminarBtn.textContent = "Eliminar";
+        eliminarBtn.addEventListener("click", () => {
+          personas.splice(index, 1);
+          guardarDatos();
+          actualizarTabla();
+        });
+        eliminarCell.appendChild(eliminarBtn);
+        row.appendChild(eliminarCell);
+
+        listaPersonas.appendChild(row);
+      });
+    }
+
+    generarBtn.addEventListener("click", () => {
+      const personasSeleccionadas = personas.filter((p) => p.seleccionada);
+      if (personasSeleccionadas.length === 0) {
+        alert("Selecciona al menos una persona.");
+        return;
+      }
+
+      const mes = mesSeleccionado.value;
+      const fecha = fechaSeleccionada.value;
+
+      personasSeleccionadas.forEach((persona) => {
+        fetch("http://127.0.0.1:5000/generar-diploma", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: persona.nombre,
+            estrellas: persona.estrellas,
+            mes: mes,
+            fecha: fecha
+          }),
+        })
+          .then((response) => response.blob())
+          .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `diploma_${persona.nombre}.pptx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          })
+          .catch((error) => console.error("❌ Error:", error));
+      });
+    });
+
+    actualizarTabla();
+  </script>
+</body>

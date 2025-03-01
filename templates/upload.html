@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subir Archivo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex flex-col items-center bg-gray-100 min-h-screen font-sans">
+
+  <!-- Cabecera (No modificada) -->
+  <div class="w-full bg-red-500 py-4 flex items-center justify-center px-6">
+    <img src="/static/logo2.png" alt="Logo" class="h-20 mr-2">
+    <h1 class="text-white text-4xl font-bold">Collect Attendance</h1>
+  </div>
+
+  <!-- Contenedor centrado con más margen superior -->
+  <div class="flex flex-col items-center mt-20">
+    <!-- Título -->
+    <h1 class="text-2xl font-semibold text-gray-700 mb-4">Subir Archivo Excel</h1>
+
+    <!-- Formulario -->
+    <form action="/" method="post" enctype="multipart/form-data"
+      class="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center space-y-4">
+      <input type="file" name="file"
+        class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+
+      <button type="submit"
+        class="bg-red-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-red-600 transition duration-300 ease-in-out">
+        Subir
+      </button>
+    </form>
+  </div>
+
+</body>
+
+</html>
