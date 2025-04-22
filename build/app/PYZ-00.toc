@@ -1,5 +1,5 @@
 ('C:\\Users\\DPT '
- 'Sistemas\\Desktop\\programas\\CollectAttendance\\build\\app\\PYZ-00.pyz',
+ 'Sistemas\\Desktop\\escritorio\\programas\\CollectAttendance\\build\\app\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\DPT '
    'Sistemas\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\__init__.py',

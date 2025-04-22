@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('templates', 'templates'), ('static', 'static'), ('uploads', 'uploads'), ('excel', 'excel'), ('output.xlsx', '.')],
+    datas = [('output_separado_por_dia.xlsx', 'uploads'), ('templates/upload.html', 'templates'), ('static/logo2.png', 'static') ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -14,6 +14,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
